@@ -2,19 +2,16 @@ import React from "react";
 
 import Store from "../stores/Store";
 import HtmlUtils from "../HtmlUtils";
-import Constants from "../constants/Constants";
+import IngredientsTable from "../components/IngredientsTable.react";
+import ConstraintsTable from "../components/ConstraintsTable.react";
 
-function getAppState() {
-  return {
-  };
-}
 
 class App extends React.Component {
   constructor() {
     super();
-    this.state = getAppState();
+    this.state = this._getAppState();
     this._onChange = () => {
-      this.setState(getAppState());
+      this.setState(this._getAppState());
     };
     this._onTick = () => {
       const now = HtmlUtils.now();
@@ -43,11 +40,20 @@ class App extends React.Component {
     }
   }
 
+  _getAppState() {
+    return {
+      constraints: Store.getConstraints(),
+      histogram: Store.getHistogram(),
+      remaining: Store.getRemainingSolutionsCount(),
+    };
+  }
+
   render() {
     const style = {
     };
     return (<div id="app" style={style}>
-        Hello World
+        <ConstraintsTable constraints={this.state.constraints} />
+        <IngredientsTable histogram={this.state.histogram} total={this.state.remaining} />
       </div>);
   }
 }
