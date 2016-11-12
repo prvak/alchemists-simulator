@@ -89,7 +89,6 @@ class Store extends EventEmitter {
       this._histogram.push(counts);
     });
   }
-
 }
 
 
