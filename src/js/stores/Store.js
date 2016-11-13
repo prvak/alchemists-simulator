@@ -16,7 +16,8 @@ class Store extends EventEmitter {
     this._remaining = this._all.slice();
     // choose random solution
     this._solution = this._all[Math.floor(this._all.length * Math.random())];
-    this._computeHistogram();
+    this._ingredientsTable = this._computeIngredientsTable();
+    this._constraintsTable = this._computeConstraintsTable();
   }
 
   emitChange() {
@@ -35,8 +36,12 @@ class Store extends EventEmitter {
     return this._constraints;
   }
 
-  getHistogram() {
-    return this._histogram;
+  getIngredientsTable() {
+    return this._ingredientsTable;
+  }
+
+  getConstraintsTable() {
+    return this._constraintsTable;
   }
 
   getRemainingSolutionsCount() {
@@ -48,9 +53,10 @@ class Store extends EventEmitter {
     // Add constraint.
     this._constraints.push(constraint);
     // Update remaining solutions.
-    this._filterSolutions(constraint);
-    // Update histogram.
-    this._computeHistogram();
+    this._remaining = this._filterSolutions(constraint);
+    // Update tables.
+    this._constraintsTable = this._computeConstraintsTable();
+    this._ingredientsTable = this._computeIngredientsTable();
   }
 
   combine(index1, index2) {
@@ -74,9 +80,11 @@ class Store extends EventEmitter {
       // Regenerate list of remaining solutions.
       this._remaining = this._all.slice();
       this._constraints.forEach((constraint) => {
-        this._filterSolutions(constraint);
+        this._remaining = this._filterSolutions(constraint);
       });
-      this._computeHistogram();
+      // Update tables.
+      this._constraintsTable = this._computeConstraintsTable();
+      this._ingredientsTable = this._computeIngredientsTable();
     }
   }
 
@@ -97,23 +105,70 @@ class Store extends EventEmitter {
     return permute(input);
   }
 
-  _computeHistogram() {
-    // Clear histogram.
-    this._histogram = [];
+  _computeIngredientsTable() {
+    // Clear table.
+    const rows = [];
     Constants.INGREDIENTS.forEach(() => {
       const counts = Array(Constants.INGREDIENTS.length).fill(0);
-      this._histogram.push(counts);
+      rows.push(counts);
     });
     // Fill in values.
     this._remaining.forEach((solution) => {
       solution.forEach((ingredient, index) => {
-        this._histogram[ingredient][index] += 1;
+        rows[ingredient][index] += 1;
       });
     });
+    return rows;
   }
 
+  _computeConstraintsTable() {
+    const currentRemaining = this._remaining.length;
+    const length = Constants.INGREDIENTS.length;
+    const hints = [
+      Constants.HINTS.redPlus,
+      Constants.HINTS.redMinus,
+      Constants.HINTS.greenPlus,
+      Constants.HINTS.greenMinus,
+      Constants.HINTS.bluePlus,
+      Constants.HINTS.blueMinus,
+      Constants.HINTS.neutral,
+    ];
+    // Compute new table.
+    const rows = [];
+    for (let row = 0; row < length - 1; row++) {
+      const columns = [];
+      for (let column = 0; column <= row; column++) {
+        const index1 = column;
+        const index2 = column + length - row - 1;
+        let totalGain = 0;
+        let validHints = hints.length;
+        hints.forEach((hint) => {
+          const constraint = { hint, index1, index2 };
+          const remaining = this._filterSolutions(constraint).length;
+          const gain = currentRemaining - remaining;
+          if (gain === 0 || gain === currentRemaining) {
+            validHints -= 1;
+          } else {
+            totalGain += gain;
+          }
+        });
+        if (validHints === 0) {
+          columns.push(0);
+        } else {
+          columns.push(totalGain / hints.length);
+        }
+      }
+      rows.push(columns);
+    }
+    return rows;
+  }
+
+  /**
+   * Remove from the list of remaining possible solutions those solutions
+   * that do not satisfy given constraint.
+   */
   _filterSolutions(constraint) {
-    this._remaining = this._remaining.filter((permutation) => {
+    return this._remaining.filter((permutation) => {
       const index1 = permutation[constraint.index1];
       const index2 = permutation[constraint.index2];
       const i1 = Constants.INGREDIENTS[index1];

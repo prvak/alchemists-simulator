@@ -16,6 +16,7 @@ class ConstraintsTable extends React.Component {
   }
 
   render() {
+    console.log(this.props.histogram);
     const total = Constants.INGREDIENTS.length;
     const rows = [];
     for (let row = 0; row < total - 1; row++) {
@@ -38,7 +39,11 @@ class ConstraintsTable extends React.Component {
             className="constraints--cell"
             onClick={onClick}
           >
-            <ConstraintsCellExperiment i1={i1} i2={i2} constraint={constraint} />
+            <ConstraintsCellExperiment i1={i1} i2={i2}
+              constraint={constraint}
+              value={this.props.histogram[row][column]}
+              total={this.props.total}
+            />
           </span>);
       }
       rows.push(<div key={row} className="constraints--row">{columns}</div>);
@@ -49,6 +54,8 @@ class ConstraintsTable extends React.Component {
 
 ConstraintsTable.propTypes = {
   constraints: React.PropTypes.array.isRequired,
+  histogram: React.PropTypes.array.isRequired,
+  total: React.PropTypes.number.isRequired,
 };
 
 export default ConstraintsTable;

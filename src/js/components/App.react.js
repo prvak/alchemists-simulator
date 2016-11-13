@@ -43,17 +43,23 @@ class App extends React.Component {
   _getAppState() {
     return {
       constraints: Store.getConstraints(),
-      histogram: Store.getHistogram(),
+      ingredientsTable: Store.getIngredientsTable(),
+      constraintsTable: Store.getConstraintsTable(),
       remaining: Store.getRemainingSolutionsCount(),
     };
   }
 
   render() {
-    const style = {
-    };
-    return (<div id="app" style={style}>
-        <ConstraintsTable constraints={this.state.constraints} />
-        <IngredientsTable histogram={this.state.histogram} total={this.state.remaining} />
+    return (<div id="app">
+        <ConstraintsTable
+          histogram={this.state.constraintsTable}
+          total={this.state.remaining}
+          constraints={this.state.constraints}
+        />
+        <IngredientsTable
+          histogram={this.state.ingredientsTable}
+          total={this.state.remaining}
+        />
       </div>);
   }
 }

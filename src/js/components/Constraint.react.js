@@ -19,19 +19,24 @@ class Constraint extends React.Component {
   render() {
     const constraint = this.props.constraint;
     const baseClass = "constraint clickable";
-    let className = baseClass;
     if (constraint) {
       const hint = constraint.hint;
       const colorClass = this._getColorClass(hint);
       const signClass = this._getSignClass(hint);
-      className = `${baseClass} ${colorClass} ${signClass}`;
+      const className = `${baseClass} ${colorClass} ${signClass}`;
+      return <div className={className}></div>;
+    } else {
+      const gain = 100 * this.props.value / this.props.total;
+      const className = `${baseClass} constraint--empty`;
+      return <div className={className}>{gain.toFixed(1)}%</div>;
     }
-    return <div className={className}></div>;
   }
 }
 
 Constraint.propTypes = {
   constraint: React.PropTypes.object,
+  total: React.PropTypes.number.isRequired,
+  value: React.PropTypes.number.isRequired,
 };
 
 export default Constraint;

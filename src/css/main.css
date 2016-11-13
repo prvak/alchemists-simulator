@@ -42,7 +42,6 @@ body {
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  font-size: 1.5em;
 }
 .constraint--red {
   background-color: red;
@@ -58,13 +57,20 @@ body {
 }
 .constraint--plus::before {
   content: "+";
+  font-size: 1.5rem;
 }
 .constraint--minus::before {
   content: "-";
+  font-size: 1.5rem;
 }
 .constraint--neutral::before {
   content: "N";
+  font-size: 1.5rem;
 }
+.constraint--empty {
+  font-size: 0.5rem;
+}
+
 
 .molecule {
   display: flex;
