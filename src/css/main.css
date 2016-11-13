@@ -17,6 +17,7 @@ body {
 .constraints {
   display: flex;
   flex-direction: column;
+  width: calc(3.5*8rem); /* To match width of the ingredients table. */
 }
 .constraints--row {
   display: flex;
@@ -27,8 +28,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 0.25rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
+
 .constraint {
   box-sizing: border-box;
   width: 2.5rem;
@@ -40,7 +43,6 @@ body {
   align-items: center;
   font-weight: bold;
   font-size: 1.5em;
-
 }
 .constraint--red {
   background-color: red;
@@ -49,7 +51,7 @@ body {
   background-color: green;
 }
 .constraint--blue {
-  background-color: blue;
+  background-color: royalblue;
 }
 .constraint--neutral {
   background-color: gray;
@@ -64,17 +66,84 @@ body {
   content: "N";
 }
 
+.molecule {
+  display: flex;
+  flex-direction: column;
+}
+.molecule--row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.molecule--cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.atom {
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+.atom--red {
+  background-color: red;
+}
+.atom--green {
+  background-color: green;
+}
+.atom--blue {
+  background-color: royalblue;
+}
+.atom--plus::before {
+  content: "+";
+}
+.atom--minus::before {
+  content: "-";
+}
+.atom--big {
+  width: 0.8rem;
+  height: 0.8rem;
+  font-size: 0.6em;
+}
+.atom--small {
+  width: 0.6rem;
+  height: 0.6rem;
+  font-size: 0.4em;
+}
+
+
 .ingredients {
-  width: calc(8*(2.5rem + 0.25rem) + 0.25rem); /* To match constraints width. */
   border-collapse: collapse;
 }
 .ingredients--cell {
   text-align: right;
   font-size: 0.8rem;
-  width: 12.5%;
+  width: 3.5rem;
   border: solid 1px black;
+  box-sizing: border-box;
+}
+.ingredients--inner-cell {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .clickable {
   cursor: pointer;
+}
+.yes {
+  background-color: limegreen;
+}
+.no {
+  background-color: tomato;
+}
+.probability {
+  width: 1.5rem;
+  font-size: 0.5rem;
 }

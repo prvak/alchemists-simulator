@@ -16,8 +16,7 @@ class Store extends EventEmitter {
     this._remaining = this._all.slice();
     // choose random solution
     this._solution = this._all[Math.floor(this._all.length * Math.random())];
-    this._histogram = [];
-    this._clearHistogram();
+    this._computeHistogram();
   }
 
   emitChange() {
@@ -49,20 +48,36 @@ class Store extends EventEmitter {
     // Add constraint.
     this._constraints.push(constraint);
     // Update remaining solutions.
-    this._remaining = this._remaining.filter((permutation) => {
-      const index1 = permutation[constraint.index1];
-      const index2 = permutation[constraint.index2];
-      const i1 = Constants.INGREDIENTS[index1];
-      const i2 = Constants.INGREDIENTS[index2];
-      return Rules.verifyHint(constraint.hint, i1, i2);
-    });
+    this._filterSolutions(constraint);
     // Update histogram.
-    this._clearHistogram();
-    this._remaining.forEach((solution) => {
-      solution.forEach((ingredient, index) => {
-        this._histogram[ingredient][index] += 1;
+    this._computeHistogram();
+  }
+
+  combine(index1, index2) {
+    this.removeConstraint(index1, index2);
+    const i1 = Constants.INGREDIENTS[this._solution[index1]];
+    const i2 = Constants.INGREDIENTS[this._solution[index2]];
+    const hint = Rules.combine(i1, i2);
+    this.addConstraint({ hint, index1, index2 });
+  }
+
+  removeConstraint(index1, index2) {
+    let removed = false;
+    for (let i = 0; i < this._constraints.length; i++) {
+      const constraint = this._constraints[i];
+      if (constraint.index1 === index1 && constraint.index2 === index2) {
+        this._constraints.splice(i, 1);
+        removed = true;
+      }
+    }
+    if (removed) {
+      // Regenerate list of remaining solutions.
+      this._remaining = this._all.slice();
+      this._constraints.forEach((constraint) => {
+        this._filterSolutions(constraint);
       });
-    });
+      this._computeHistogram();
+    }
   }
 
   _makePermutations(input) {
@@ -82,28 +97,48 @@ class Store extends EventEmitter {
     return permute(input);
   }
 
-  _clearHistogram() {
+  _computeHistogram() {
+    // Clear histogram.
     this._histogram = [];
     Constants.INGREDIENTS.forEach(() => {
       const counts = Array(Constants.INGREDIENTS.length).fill(0);
       this._histogram.push(counts);
+    });
+    // Fill in values.
+    this._remaining.forEach((solution) => {
+      solution.forEach((ingredient, index) => {
+        this._histogram[ingredient][index] += 1;
+      });
+    });
+  }
+
+  _filterSolutions(constraint) {
+    this._remaining = this._remaining.filter((permutation) => {
+      const index1 = permutation[constraint.index1];
+      const index2 = permutation[constraint.index2];
+      const i1 = Constants.INGREDIENTS[index1];
+      const i2 = Constants.INGREDIENTS[index2];
+      return Rules.verifyHint(constraint.hint, i1, i2);
     });
   }
 }
 
 
 const store = new Store();
-store.addConstraint({ hint: Constants.HINTS.redPlus, index1: 0, index2: 1 });
-store.addConstraint({ hint: Constants.HINTS.greenPlus, index1: 2, index2: 3 });
-store.addConstraint({ hint: Constants.HINTS.bluePlus, index1: 4, index2: 5 });
-store.addConstraint({ hint: Constants.HINTS.greenMinus, index1: 6, index2: 7 });
-store.addConstraint({ hint: Constants.HINTS.blueMinus, index1: 0, index2: 7 });
 
 // Register callback to handle all updates
 AppDispatcher.register((action) => {
   switch (action.actionType) {
     case Constants.ADD_CONSTRAINT:
       store.addConstraint(action.constraint);
+      store.emitChange();
+      break;
+    case Constants.COMBINE:
+      store.combine(action.i1, action.i2);
+      store.emitChange();
+      break;
+    case Constants.REMOVE_CONSTRAINT:
+      store.removeConstraint(action.i1, action.i2);
       store.emitChange();
       break;
     default:

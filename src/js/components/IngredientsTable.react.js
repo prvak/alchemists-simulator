@@ -1,5 +1,6 @@
 import React from "react";
 
+import Constants from "../constants/Constants";
 import IngredientsCell from "../components/IngredientsCell.react";
 
 class IngredientsTable extends React.Component {
@@ -7,13 +8,15 @@ class IngredientsTable extends React.Component {
     const total = this.props.total;
     const rows = [];
     this.props.histogram.forEach((row, rowId) => {
-      const columns = [];
-      row.forEach((value, columnId) => {
-        columns.push(<td className="ingredients--cell" key={columnId}>
-          <IngredientsCell value={value} total={total} />
-        </td>);
+      const cells = [];
+      row.forEach((value, cellId) => {
+        const ingredient = Constants.INGREDIENTS[rowId];
+        cells.push(
+          <IngredientsCell key={cellId}
+            ingredient={ingredient} total={total} value={value}
+          />);
       });
-      rows.push(<tr className="ingredients--row" key={rowId}>{columns}</tr>);
+      rows.push(<tr className="ingredients--row" key={rowId}>{cells}</tr>);
     });
     return (<table className="ingredients"><tbody>{rows}</tbody></table>);
   }

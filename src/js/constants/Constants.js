@@ -1,5 +1,7 @@
 const TimeConstants = {
   ADD_CONSTRAINT: "ADD_CONSTRAINT",
+  GENERATE_CONSTRAINT: "GENERATE_CONSTRAINT",
+  REMOVE_CONSTRAINT: "REMOVE_CONSTRAINT",
   INGREDIENTS: [
     {
       plus: [false, true, false],
