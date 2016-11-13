@@ -18,6 +18,7 @@ class Store extends EventEmitter {
     this._solution = this._all[Math.floor(this._all.length * Math.random())];
     this._ingredientsTable = this._computeIngredientsTable();
     this._constraintsTable = this._computeConstraintsTable();
+    this._bestCombinations = this._computeBestCombinations();
   }
 
   emitChange() {
@@ -44,6 +45,10 @@ class Store extends EventEmitter {
     return this._constraintsTable;
   }
 
+  getBestCombinations() {
+    return this._bestCombinations;
+  }
+
   getRemainingSolutionsCount() {
     return this._remaining.length;
   }
@@ -57,6 +62,7 @@ class Store extends EventEmitter {
     // Update tables.
     this._constraintsTable = this._computeConstraintsTable();
     this._ingredientsTable = this._computeIngredientsTable();
+    this._bestCombinations = this._computeBestCombinations();
   }
 
   combine(index1, index2) {
@@ -85,7 +91,48 @@ class Store extends EventEmitter {
       // Update tables.
       this._constraintsTable = this._computeConstraintsTable();
       this._ingredientsTable = this._computeIngredientsTable();
+      this._bestCombinations = this._computeBestCombinations();
     }
+  }
+
+  /**
+   * Find best combinations for current solution.
+   * Best combination is such that leaves the least number of possible solutions.
+   */
+  _computeBestCombinations() {
+    const length = Constants.INGREDIENTS.length;
+    const hints = [
+      Constants.HINTS.redPlus,
+      Constants.HINTS.redMinus,
+      Constants.HINTS.greenPlus,
+      Constants.HINTS.greenMinus,
+      Constants.HINTS.bluePlus,
+      Constants.HINTS.blueMinus,
+      Constants.HINTS.neutral,
+    ];
+    let result = [];
+    let best = null;
+    const checkHints = (index1, index2) => {
+      const i1 = Constants.INGREDIENTS[this._solution[index1]];
+      const i2 = Constants.INGREDIENTS[this._solution[index2]];
+      const hint = Rules.combine(i1, i2);
+      const constraint = { hint, index1, index2 };
+      const solutions = this._filterSolutions(constraint).length;
+      if (!best || best.solutions > solutions) {
+        best = { solutions, index1, index2 };
+        result = [best];
+      } else if (best.solutions === solutions) {
+        result.push({ solutions, index1, index2 });
+      }
+    };
+    for (let row = 0; row < length - 1; row++) {
+      for (let column = 0; column <= row; column++) {
+        const index1 = column;
+        const index2 = column + length - row - 1;
+        checkHints(index1, index2);
+      }
+    }
+    return result;
   }
 
   _makePermutations(input) {

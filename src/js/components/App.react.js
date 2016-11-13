@@ -46,6 +46,7 @@ class App extends React.Component {
       ingredientsTable: Store.getIngredientsTable(),
       constraintsTable: Store.getConstraintsTable(),
       remaining: Store.getRemainingSolutionsCount(),
+      bestCombinations: Store.getBestCombinations(),
     };
   }
 
@@ -55,6 +56,7 @@ class App extends React.Component {
           histogram={this.state.constraintsTable}
           total={this.state.remaining}
           constraints={this.state.constraints}
+          bestCombinations={this.state.bestCombinations}
         />
         <IngredientsTable
           histogram={this.state.ingredientsTable}

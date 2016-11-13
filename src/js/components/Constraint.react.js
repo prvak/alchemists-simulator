@@ -27,7 +27,8 @@ class Constraint extends React.Component {
       return <div className={className}></div>;
     } else {
       const gain = 100 * this.props.value / this.props.total;
-      const className = `${baseClass} constraint--empty`;
+      const bestClass = this.props.isBest ? "constraint--best" : "";
+      const className = `${baseClass} ${bestClass} constraint--empty`;
       return <div className={className}>{gain.toFixed(1)}%</div>;
     }
   }
@@ -37,6 +38,7 @@ Constraint.propTypes = {
   constraint: React.PropTypes.object,
   total: React.PropTypes.number.isRequired,
   value: React.PropTypes.number.isRequired,
+  isBest: React.PropTypes.bool.isRequired,
 };
 
 export default Constraint;

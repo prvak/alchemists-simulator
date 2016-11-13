@@ -16,7 +16,6 @@ class ConstraintsTable extends React.Component {
   }
 
   render() {
-    console.log(this.props.histogram);
     const total = Constants.INGREDIENTS.length;
     const rows = [];
     for (let row = 0; row < total - 1; row++) {
@@ -25,6 +24,9 @@ class ConstraintsTable extends React.Component {
         const i1 = column;
         const i2 = column + total - row - 1;
         const constraint = this.props.constraints.find((c) => {
+          return c.index1 === i1 && c.index2 === i2;
+        });
+        const isBest = !!this.props.bestCombinations.find((c) => {
           return c.index1 === i1 && c.index2 === i2;
         });
         let onClick;
@@ -43,6 +45,7 @@ class ConstraintsTable extends React.Component {
               constraint={constraint}
               value={this.props.histogram[row][column]}
               total={this.props.total}
+              isBest={isBest}
             />
           </span>);
       }
@@ -56,6 +59,7 @@ ConstraintsTable.propTypes = {
   constraints: React.PropTypes.array.isRequired,
   histogram: React.PropTypes.array.isRequired,
   total: React.PropTypes.number.isRequired,
+  bestCombinations: React.PropTypes.array.isRequired,
 };
 
 export default ConstraintsTable;
